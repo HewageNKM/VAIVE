@@ -32,7 +32,7 @@ export const createUser = async (userName: string, email: string, password: stri
             username: userName,
             password,
             email,
-            avatar:avatarUrl,
+            avatar: avatarUrl,
             accountId: newAccount.$id
         })
         if (!newUser) {

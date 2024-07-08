@@ -21,7 +21,7 @@ const SignUp = () => {
         }
         setIsSubmitting(true)
         try {
-            const newUser = await createUser(form.userName, form.email, form.password)
+            const session = await createUser(form.userName, form.email, form.password)
             setForm({userName: '', email: '', password: ''})
             router.replace("/home")
         } catch (e) {
@@ -41,11 +41,11 @@ const SignUp = () => {
                     <Image source={images.logo} resizeMode="contain" className="w-[150px]"/>
                     <Text className="text-white font-psemibold text-2xl"> Sign Up in to VAIVE</Text>
                     <FormField title="Username" value={form.userName}
-                               handleChageText={(e) => setForm({...form, userName: e})} otherStyles="mt-7 w-full"/>
-                    <FormField title="Email" value={form.email} handleChageText={(e) => setForm({...form, email: e})}
+                               handleChangeText={(e) => setForm({...form, userName: e})} otherStyles="mt-7 w-full"/>
+                    <FormField title="Email" value={form.email} handleChangeText={(e) => setForm({...form, email: e})}
                                otherStyles="mt-7 w-full" keyboardType="email"/>
                     <FormField title="Password" value={form.password}
-                               handleChageText={(e) => setForm({...form, password: e})} otherStyles="mt-7 w-full"/>
+                               handleChangeText={(e) => setForm({...form, password: e})} otherStyles="mt-7 w-full"/>
                     <CustomButton isLoading={isSubmitting} title="Sign Up" handlePress={submit}
                                   containerStyles="mt-7 w-full"/>
                     <View className="justify-center item-center pt-5 flex-row gap-2">
