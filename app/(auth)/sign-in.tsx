@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {Image, ScrollView, Text, View} from "react-native";
+import {Alert, Image, ScrollView, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import images from "@/constants/images";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import {Link} from 'expo-router';
+import {Link, router} from 'expo-router';
+import {signIn} from "@/lib/appwrite";
 
 const SignIn = () => {
     const [form, setForm] = useState({
@@ -12,8 +13,22 @@ const SignIn = () => {
         password: ''
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const submit = () => {
-        console.log(form)
+    const submit = async () => {
+        if (!form.password || !form.email) {
+            Alert.alert("Error", "Please enter the valid details")
+            return
+        }
+        setIsSubmitting(true)
+        try {
+            const session = await signIn(form.email, form.password)
+            setForm({password: '', email: ''})
+            router.replace("/home")
+        } catch (e) {
+            Alert.alert("Error", e.message)
+            console.log(e)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
     return (
         <SafeAreaView className="h-full bg-primary">
@@ -21,10 +36,10 @@ const SignIn = () => {
                 <View className="w-full justify-center items-center px-4 my-5 h-full">
                     <Image source={images.logo} resizeMode="contain" className="w-[150px]"/>
                     <Text className="text-white font-psemibold text-2xl"> Log in to VAIVE</Text>
-                    <FormField title="Email" value={form.email} handleChageText={(e) => setForm({...form, email: e})}
+                    <FormField title="Email" value={form.email} handleChangeText={(e) => setForm({...form, email: e})}
                                otherStyles="mt-7 w-full" keyboardType="email"/>
                     <FormField title="Password" value={form.password}
-                               handleChageText={(e) => setForm({...form, password: e})} otherStyles="mt-7 w-full"/>
+                               handleChangeText={(e) => setForm({...form, password: e})} otherStyles="mt-7 w-full"/>
                     <CustomButton isLoading={isSubmitting} title="Sign In" handlePress={submit}
                                   containerStyles="mt-7 w-full"/>
                     <View className="justify-center item-center pt-5 flex-row gap-2">
