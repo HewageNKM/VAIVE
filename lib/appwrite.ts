@@ -1,4 +1,5 @@
-import {Account, Avatars, Client, Databases, ID} from 'react-native-appwrite';
+import {Account, Avatars, Client, Databases, ID, Query} from 'react-native-appwrite';
+import exp from "node:constants";
 
 const config = {
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -51,5 +52,37 @@ export const signIn = async (email: string, password: string) => {
     } catch (e) {
         console.error(e)
         throw new Error(e)
+    }
+}
+export const getCurrentUser = async ()=>{
+    try {
+        const currentAccount = await account.get();
+        if(!currentAccount){
+            throw Error
+        }
+
+        const currentUser = await databases.listDocuments(config.appwriteDBId,config.userCollectionId,[Query.equal('accountId',currentAccount.$id)])
+        if(!currentUser){
+            throw Error
+        }
+
+        return currentUser.documents[0]
+    }catch (e){
+        console.log(e)
+    }
+}
+export const getAllPosts = async ()=>{
+    try {
+        return await databases.listDocuments(config.appwriteDBId,config.videoCollectionId)
+    }catch (e){
+        console.log(e)
+    }
+}
+
+export const getLatestPosts = async () => {
+    try {
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.orderDesc("$createdAt"),Query.limit(5)])
+    } catch (e) {
+        console.log(e)
     }
 }

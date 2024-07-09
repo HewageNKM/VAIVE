@@ -2,6 +2,7 @@ import React from 'react';
 import {Image, Text, View} from "react-native";
 import {Tabs} from "expo-router";
 import icons from "@/constants/icons";
+import {StatusBar} from "expo-status-bar";
 
 const TabIcon = ({icon, color, name, focused}) => {
     return (
@@ -40,6 +41,7 @@ const TabsLayout = () => {
                         <TabIcon icon={icons.profile} color={color} focused={focused} name="Profile"/>)
                 }}/>
             </Tabs>
+            <StatusBar style="light" backgroundColor="#0b1c23"/>
         </>
     );
 };
