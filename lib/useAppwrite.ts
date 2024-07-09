@@ -1,27 +1,35 @@
 import {useEffect, useState} from "react";
-import {getAllPosts} from "@/lib/appwrite";
 import {Alert} from "react-native";
 
-const useAppwrite = (fn) => {
-    const [data,setData] = useState([])
-    const [isLoading,setIsLoading] = useState(true)
+const useAppwrite = (fn, query) => {
+    const [data, setData] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
     const fetchData = async () => {
         setIsLoading(true)
         try {
-            const data = await fn()
-            setData(data)
-        }catch (e){
-            Alert.alert('Error',e.message)
-        }finally {
+            if (query) {
+                const data = await fn(query)
+                setData(data)
+            } else {
+                const data = await fn()
+                setData(data)
+            }
+        } catch (e) {
+            Alert.alert('Error', e.message)
+        } finally {
             setIsLoading(false)
         }
     }
-    useEffect(()=>{
+    useEffect(() => {
         fetchData()
-    },[])
+    }, [])
 
-    const refetch = ()=> fetchData()
-    return {data:data.documents, isLoading, refetch}
+    const refetch = () => fetchData()
+    if(data){
+        return {data:data.documents, refetch}
+    }else {
+        return {data: [{}], refetch}
+    }
 }
 
 export default useAppwrite;

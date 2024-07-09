@@ -86,3 +86,11 @@ export const getLatestPosts = async () => {
         console.log(e)
     }
 }
+
+export const searchPosts = async (query) => {
+    try {
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.search("title",query)])
+    } catch (e) {
+        console.log(e)
+    }
+}
