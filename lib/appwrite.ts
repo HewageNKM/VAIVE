@@ -1,4 +1,4 @@
-import {Account, Avatars, Client, Databases, ID, Query} from 'react-native-appwrite';
+import {Account, Avatars, Client, Databases, ID, Query, Storage} from 'react-native-appwrite';
 
 const config = {
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -19,6 +19,7 @@ client
 const account = new Account(client)
 const avatars = new Avatars(client)
 const databases = new Databases(client)
+const storage = new Storage(client)
 
 export const createUser = async (userName: string, email: string, password: string) => {
     try {
@@ -44,7 +45,6 @@ export const createUser = async (userName: string, email: string, password: stri
         throw new Error(e)
     }
 }
-
 export const signIn = async (email: string, password: string) => {
     try {
         return await account.createEmailPasswordSession(email, password);
@@ -77,7 +77,6 @@ export const getAllPosts = async () => {
         console.log(e)
     }
 }
-
 export const getLatestPosts = async () => {
     try {
         return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.orderDesc("$createdAt"), Query.limit(5)])
@@ -85,7 +84,6 @@ export const getLatestPosts = async () => {
         console.log(e)
     }
 }
-
 export const searchPosts = async (query) => {
     try {
         return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.search("title", query)])
@@ -93,7 +91,6 @@ export const searchPosts = async (query) => {
         console.log(e)
     }
 }
-
 export const getUserPosts = async (userId) => {
     try {
         return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.equal("user", userId)])
@@ -101,10 +98,53 @@ export const getUserPosts = async (userId) => {
         console.log(e)
     }
 }
-
 export const signOut = async () => {
     try {
         return await account.deleteSession("current")
+    } catch (e) {
+        console.log(e)
+    }
+}
+const getFilePreview = async (id,type)=>{
+    try {
+        if(type === 'video'){
+            return storage.getFileView(config.storageId,id)
+        }else if(type === 'image') {
+            return storage.getFilePreview(config.storageId,id,2000,2000,'top',100)
+        }else {
+            throw  new Error("Invalid File Type")
+        }
+    }catch (e){
+        console.log(e)
+    }
+}
+const uploadFile = async (file,type)=>{
+    if(!file) return;
+
+    const {mimeType,...rest} = file;
+    const assets = {type:mimeType, ...rest};
+
+    try {
+        const  uploadFile = await storage.createFile(config.storageId,ID.unique(),assets)
+        return await getFilePreview(uploadFile.$id,type)
+    }catch (e){
+        console.log(e)
+    }
+}
+export const createVideo = async (form) => {
+    try {
+        const [thumbnailUrl,videoUrl] = Promise.all([
+            uploadFile(form.thumbnail,'image'),
+            uploadFile(form.video,'video'),
+        ])
+
+        return await databases.createDocument(config.appwriteDBId, config.videoCollectionId, ID.unique(), {
+            title: form.title,
+            thumbnail: thumbnailUrl,
+            video: videoUrl,
+            prompt: form.prompt,
+            user: form.userId
+        })
     } catch (e) {
         console.log(e)
     }
