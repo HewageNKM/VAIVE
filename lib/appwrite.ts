@@ -1,5 +1,4 @@
 import {Account, Avatars, Client, Databases, ID, Query} from 'react-native-appwrite';
-import exp from "node:constants";
 
 const config = {
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -54,34 +53,34 @@ export const signIn = async (email: string, password: string) => {
         throw new Error(e)
     }
 }
-export const getCurrentUser = async ()=>{
+export const getCurrentUser = async () => {
     try {
         const currentAccount = await account.get();
-        if(!currentAccount){
+        if (!currentAccount) {
             throw Error
         }
 
-        const currentUser = await databases.listDocuments(config.appwriteDBId,config.userCollectionId,[Query.equal('accountId',currentAccount.$id)])
-        if(!currentUser){
+        const currentUser = await databases.listDocuments(config.appwriteDBId, config.userCollectionId, [Query.equal('accountId', currentAccount.$id)])
+        if (!currentUser) {
             throw Error
         }
 
         return currentUser.documents[0]
-    }catch (e){
+    } catch (e) {
         console.log(e)
     }
 }
-export const getAllPosts = async ()=>{
+export const getAllPosts = async () => {
     try {
-        return await databases.listDocuments(config.appwriteDBId,config.videoCollectionId)
-    }catch (e){
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId)
+    } catch (e) {
         console.log(e)
     }
 }
 
 export const getLatestPosts = async () => {
     try {
-        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.orderDesc("$createdAt"),Query.limit(5)])
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.orderDesc("$createdAt"), Query.limit(5)])
     } catch (e) {
         console.log(e)
     }
@@ -89,7 +88,23 @@ export const getLatestPosts = async () => {
 
 export const searchPosts = async (query) => {
     try {
-        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.search("title",query)])
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.search("title", query)])
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const getUserPosts = async (userId) => {
+    try {
+        return await databases.listDocuments(config.appwriteDBId, config.videoCollectionId, [Query.equal("user", userId)])
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const signOut = async () => {
+    try {
+        return await account.deleteSession("current")
     } catch (e) {
         console.log(e)
     }

@@ -8,8 +8,10 @@ import EmptyState from "@/components/EmptyState";
 import {getAllPosts, getLatestPosts} from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
 import VideoCard from "@/components/VideoCard";
+import {useGlobalContext} from "@/context/GlobalProvider";
 
 const Home = () => {
+    const {user} = useGlobalContext()
     const {data: posts, refetch} = useAppwrite(getAllPosts)
     const {data: latestPost} = useAppwrite(getLatestPosts)
     const [refreshing, setRefreshing] = useState(false)
@@ -18,7 +20,6 @@ const Home = () => {
         await refetch()
         setRefreshing(false)
     }
-    console.log(latestPost)
     return (
         <SafeAreaView className="h-full bg-primary">
             <FlatList data={posts} keyExtractor={(item) => item.$id} ListHeaderComponent={() => (
@@ -29,7 +30,7 @@ const Home = () => {
                                 Welcome back,
                             </Text>
                             <Text className="text-2xl text-white font-psemibold">
-                                User
+                                {user?.username}
                             </Text>
                         </View>
                         <View className="mt-1.5">
